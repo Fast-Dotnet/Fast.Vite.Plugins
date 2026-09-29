@@ -129,7 +129,7 @@
 		".env": ".env.*",
 		".gitignore": ".gitattributes",
 		".prettierrc.cjs": ".prettierignore, eslint.config.mjs",
-		"package.json": ".nvmrc, pnpm-lock.yaml, pnpm-workspace.yaml",
+		"package.json": "pnpm-lock.yaml, pnpm-workspace.yaml",
 		"tsconfig.json": "tsconfig.*.json"
 	}
 }
