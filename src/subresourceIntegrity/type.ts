@@ -4,10 +4,10 @@ export type SubresourceIntegrityAlgorithm = "sha256" | "sha384" | "sha512";
 /** 选择需要生成完整性摘要的构建产物。 */
 export type SubresourceIntegrityFilter = RegExp | ((fileName: string, type: "asset" | "chunk") => boolean);
 
-/** HTML 标签使用的 CORS 凭据模式。 */
+/** HTML 标签使用的 CORS 凭据模式 */
 export type IntegrityCrossorigin = "anonymous" | "use-credentials" | false;
 
-/** `subresourceIntegrity` 的配置。 */
+/** `subresourceIntegrity` 的配置 */
 export interface SubresourceIntegrityPluginOptions {
 	/**
 	 * 一个或多个摘要算法；多个结果会按声明顺序写入同一个 `integrity` 属性。
@@ -47,9 +47,9 @@ export interface SubresourceIntegrityPluginOptions {
 	strict?: boolean;
 }
 
-/** 内部 HTML 完整性注入参数。 */
+/** 内部 HTML 完整性注入参数 */
 export interface IntegrityInjectionOptions {
-	/** 当前 HTML 在 `outDir` 内的相对文件名。 @defaultValue `"index.html"` */
+	/** 当前 HTML 在 `outDir` 内的相对文件名 @defaultValue `"index.html"` */
 	htmlFileName?: string;
 	/** Vite 已解析的 `base`，支持根路径、相对路径和完整 URL。 @defaultValue `"/"` */
 	base?: string;
@@ -61,7 +61,7 @@ export interface IntegrityInjectionOptions {
 	overwrite?: boolean;
 }
 
-/** HTML 完整性注入的确定性结果。 */
+/** HTML 完整性注入的确定性结果 */
 export interface IntegrityInjectionResult {
 	/** 转换后的 HTML。 */
 	html: string;

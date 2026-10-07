@@ -101,9 +101,9 @@ export function resolvePathInside(base: string, configuredPath: string, feature:
 	return resolved;
 }
 
-/** 稳定文件扫描器的目录深度与过滤选项。 */
+/** 稳定文件扫描器的目录深度与过滤选项 */
 export interface ScanFilesOptions {
-	/** 是否递归扫描子目录。 @defaultValue `true` */
+	/** 是否递归扫描子目录 @defaultValue `true` */
 	deep?: boolean;
 	/** 返回 `false` 时排除当前绝对路径。 */
 	filter?: (absolutePath: string) => boolean;

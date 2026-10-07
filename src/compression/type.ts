@@ -3,7 +3,7 @@ import type { BrotliOptions, ZlibOptions } from "node:zlib";
 /** 插件支持的预压缩算法。 */
 export type CompressionAlgorithm = "brotli" | "gzip";
 
-/** `compression` 的配置。 */
+/** `compression` 的配置 */
 export interface CompressionPluginOptions {
 	/** 要生成的压缩格式；重复项会被忽略。 @defaultValue `["gzip", "brotli"]` */
 	algorithms?: CompressionAlgorithm | readonly CompressionAlgorithm[];
@@ -15,8 +15,8 @@ export interface CompressionPluginOptions {
 	filter?: RegExp | ((fileName: string) => boolean);
 	/** 自定义压缩文件名；结果必须是 `outDir` 内未被占用的相对路径。 */
 	fileName?: (originalFileName: string, algorithm: CompressionAlgorithm) => string;
-	/** 传递给 Node.js `zlib.gzip` 的选项。 */
+	/** 传递给 Node.js `zlib.gzip` 的选项 */
 	gzipOptions?: ZlibOptions;
-	/** 传递给 Node.js `zlib.brotliCompress` 的选项。 */
+	/** 传递给 Node.js `zlib.brotliCompress` 的选项 */
 	brotliOptions?: BrotliOptions;
 }

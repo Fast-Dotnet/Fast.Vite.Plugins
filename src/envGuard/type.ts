@@ -25,7 +25,7 @@ export interface EnvValidationIssue {
 	message: string;
 }
 
-/** `envGuard` 的配置。 */
+/** `envGuard` 的配置 */
 export interface EnvGuardPluginOptions {
 	/** 要校验的环境变量规则。 */
 	schema: EnvSchema;

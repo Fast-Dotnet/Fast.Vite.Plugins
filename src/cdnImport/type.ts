@@ -28,7 +28,7 @@ export interface CdnModule {
 
 /** 动态 CDN 模块解析器可读取的 Vite 环境与路径信息。 */
 export interface CdnModuleResolverContext extends ConfigEnv {
-	/** Vite 项目根目录的绝对路径。 */
+	/** Vite 项目根目录的绝对路径 */
 	root: string;
 	/** 当前生效的默认 URL 模板。 */
 	urlTemplate: string;
@@ -47,7 +47,7 @@ export interface ResolvedCdnModule extends CdnModule {
 	version: string;
 }
 
-/** `cdnImport` 的配置。 */
+/** `cdnImport` 的配置 */
 export interface CdnImportPluginOptions {
 	/** CDN 模块或按 Vite mode 动态返回模块的函数。 */
 	modules: CdnModule | CdnModuleResolver | readonly (CdnModule | CdnModuleResolver)[];

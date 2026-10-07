@@ -1,9 +1,9 @@
 import type { ConfigEnv, Plugin, ResolvedConfig } from "vite";
 import type { Awaitable } from "../shared/plugin";
 
-/** 传递给动态虚拟模块源码提供者的上下文。 */
+/** 传递给动态虚拟模块源码提供者的上下文 */
 export interface VirtualModuleContext extends ConfigEnv {
-	/** Vite 项目根目录的绝对路径。 */
+	/** Vite 项目根目录的绝对路径 */
 	root: string;
 }
 
@@ -12,7 +12,7 @@ export type VirtualModuleSource = string | ((context: VirtualModuleContext) => A
 /** 以 `virtual:` 开头的公开模块 ID 到源码提供者的映射。 */
 export type VirtualModuleMap = Readonly<Record<string, VirtualModuleSource>>;
 
-/** `virtualModules` 的配置。 */
+/** `virtualModules` 的配置 */
 export interface VirtualModulesPluginOptions {
 	/** 要注册的虚拟模块。所有键都必须以 `virtual:` 开头。 */
 	modules: VirtualModuleMap;

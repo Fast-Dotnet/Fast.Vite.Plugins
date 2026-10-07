@@ -1,6 +1,6 @@
 import type { ViteDevServer } from "vite";
 
-/** 同步值或异步结果。 */
+/** 同步值或异步结果 */
 export type Awaitable<T> = Promise<T> | T;
 /** JSON 支持的原始值。 */
 export type JsonPrimitive = boolean | null | number | string;

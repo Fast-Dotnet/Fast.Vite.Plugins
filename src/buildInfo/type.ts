@@ -10,9 +10,9 @@ import type { Awaitable, JsonValue } from "../shared/plugin";
 export interface BuildInformation {
 	/** 当前应用版本。 */
 	version: string;
-	/** ISO 8601 格式的构建时间。 */
+	/** ISO 8601 格式的构建时间 */
 	builtAt: string;
-	/** Vite 当前运行模式。 */
+	/** Vite 当前运行模式 */
 	mode: string;
 	/** CI 提交标识；没有可用来源时省略。 */
 	commit?: string;
@@ -20,13 +20,13 @@ export interface BuildInformation {
 	[key: string]: JsonValue | undefined;
 }
 
-/** 传递给动态构建信息提供者的只读上下文。 */
+/** 传递给动态构建信息提供者的只读上下文 */
 export interface BuildInfoContext extends ConfigEnv {
-	/** Vite 解析后的项目根目录绝对路径。 */
+	/** Vite 解析后的项目根目录绝对路径 */
 	root: string;
 }
 
-/** `buildInfo` 的配置。 */
+/** `buildInfo` 的配置 */
 export interface BuildInfoPluginOptions {
 	/** 固定版本号；省略时读取 {@link packageJson} 指向的文件。 */
 	version?: string;

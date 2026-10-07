@@ -6,13 +6,13 @@ export type HtmlTemplateValue = boolean | number | string;
 /** HTML 占位符名称与替换值的只读映射。 */
 export type HtmlTemplateData = Readonly<Record<string, HtmlTemplateValue>>;
 
-/** 传递给动态模板数据和标签提供者的上下文。 */
+/** 传递给动态模板数据和标签提供者的上下文 */
 export interface HtmlTemplateContext extends ConfigEnv {
-	/** 当前 HTML 入口路径。 */
+	/** 当前 HTML 入口路径 */
 	path: string;
 }
 
-/** `htmlTemplate` 的配置。 */
+/** `htmlTemplate` 的配置 */
 export interface HtmlTemplatePluginOptions {
 	/** 静态模板数据，或根据当前命令、模式和 HTML 路径动态返回的数据。 */
 	data: HtmlTemplateData | ((context: HtmlTemplateContext) => Awaitable<HtmlTemplateData>);

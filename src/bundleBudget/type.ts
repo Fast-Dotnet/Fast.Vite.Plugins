@@ -1,7 +1,7 @@
-/** 构建产物体积的计量方式。 */
+/** 构建产物体积的计量方式 */
 export type BundleSizeMode = "brotli" | "gzip" | "raw";
 
-/** 构建产物的 Rolldown/Rollup 输出类型。 */
+/** 构建产物的 Rolldown/Rollup 输出类型 */
 export type BundleOutputType = "asset" | "chunk";
 
 /**
@@ -45,7 +45,7 @@ export interface BundleBudgetRule {
 	requireMatch?: boolean;
 }
 
-/** `bundleBudget` 的配置。 */
+/** `bundleBudget` 的配置 */
 export interface BundleBudgetPluginOptions {
 	/** 至少一条预算规则；规则按声明顺序执行和报告。 */
 	budgets: readonly BundleBudgetRule[];
@@ -59,35 +59,35 @@ export interface BundleBudgetPluginOptions {
 
 /** 插件内部用于预算测量的最小构建产物结构。 */
 export interface MeasurableBundleOutput {
-	/** `outDir` 内的相对文件名。 */
+	/** `outDir` 内的相对文件名 */
 	fileName: string;
-	/** 产物类型。 */
+	/** 产物类型 */
 	type: BundleOutputType;
 	/** 资产源码或代码内容。 */
 	source: string | Uint8Array;
 }
 
-/** 单个匹配文件的计量结果。 */
+/** 单个匹配文件的计量结果 */
 export interface BundleBudgetFileMeasurement {
-	/** `outDir` 内的相对文件名。 */
+	/** `outDir` 内的相对文件名 */
 	fileName: string;
 	/** 以当前规则计量方式计算的字节数。 */
 	bytes: number;
-	/** 产物类型。 */
+	/** 产物类型 */
 	type: BundleOutputType;
 }
 
-/** 单条预算的完整评估结果。 */
+/** 单条预算的完整评估结果 */
 export interface BundleBudgetEvaluation {
-	/** 预算在诊断信息中的名称。 */
+	/** 预算在诊断信息中的名称 */
 	name: string;
 	/** 预算上限字节数。 */
 	limit: number;
-	/** 当前计量方式。 */
+	/** 当前计量方式 */
 	mode: BundleSizeMode;
-	/** 当前聚合范围。 */
+	/** 当前聚合范围 */
 	scope: "file" | "total";
-	/** 按文件名稳定排序的匹配结果。 */
+	/** 按文件名稳定排序的匹配结果 */
 	files: readonly BundleBudgetFileMeasurement[];
 	/** `scope: "total"` 时为总和，否则为最大单文件体积。 */
 	actualBytes: number;
