@@ -41,7 +41,7 @@ function matchesWatchedPath(filePath: string, targets: readonly ResolvedRestartP
 export function devRestart(options: DevRestartPluginOptions): Plugin {
 	const configuredPathsValue: unknown = options.paths;
 	if (typeof configuredPathsValue !== "string" && !Array.isArray(configuredPathsValue)) {
-		throw new Error("[fast-vite:dev-restart] paths 必须是字符串或字符串数组。");
+		throw new Error("[fast-vite:dev-restart] paths must be a string or an array of strings.");
 	}
 	const configuredPaths = typeof options.paths === "string" ? [options.paths] : [...options.paths];
 	const debounce = options.debounce ?? 100;
@@ -78,7 +78,7 @@ export function devRestart(options: DevRestartPluginOptions): Plugin {
 					await server.restart(options.forceOptimizeDeps ?? false);
 				},
 				debounce,
-				(error) => server.config.logger.error(`[fast-vite:dev-restart] 重启失败：${errorMessage(error)}`)
+				(error) => server.config.logger.error(`[fast-vite:dev-restart] Failed to restart the development server: ${errorMessage(error)}`)
 			);
 			const handleEvent = (event: string, file: string): void => {
 				if (!SUPPORTED_EVENTS.has(event as DevRestartEvent) || !matchesWatchedPath(file, targets)) return;
@@ -105,15 +105,15 @@ export function devRestart(options: DevRestartPluginOptions): Plugin {
 }
 
 function validateOptions(paths: readonly string[], debounce: number): void {
-	if (paths.length === 0) throw new Error("[fast-vite:dev-restart] paths 至少需要一个文件或目录。");
+	if (paths.length === 0) throw new Error("[fast-vite:dev-restart] paths must contain at least one file or directory.");
 	for (const configuredPath of paths) {
-		if (!configuredPath.trim()) throw new Error("[fast-vite:dev-restart] paths 不能包含空路径。");
+		if (!configuredPath.trim()) throw new Error("[fast-vite:dev-restart] paths must not contain empty paths.");
 		if (GLOB_PATTERN.test(configuredPath)) {
 			GLOB_PATTERN.lastIndex = 0;
-			throw new Error(`[fast-vite:dev-restart] paths 不支持 glob：${configuredPath}`);
+			throw new Error(`[fast-vite:dev-restart] paths does not support glob patterns: ${configuredPath}`);
 		}
 	}
-	if (!Number.isFinite(debounce) || debounce < 0) throw new Error("[fast-vite:dev-restart] debounce 必须是大于或等于 0 的有限数值。");
+	if (!Number.isFinite(debounce) || debounce < 0) throw new Error("[fast-vite:dev-restart] debounce must be a finite non-negative number.");
 }
 
 function comparablePath(filePath: string): string {

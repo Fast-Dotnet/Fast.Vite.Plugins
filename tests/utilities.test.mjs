@@ -77,9 +77,34 @@ test("environment required and allowEmpty rules are independent", () => {
 					{ envDir: false },
 					{ mode: "test" }
 				),
-			/变量为空/
+			/Variable is empty/
 		);
 		assert.doesNotThrow(() => envGuard({ schema: { [key]: { allowEmpty: true } } }).config.call({}, { envDir: false }, { mode: "test" }));
+	} finally {
+		if (previous === undefined) delete process.env[key];
+		else process.env[key] = previous;
+	}
+});
+
+test("environment guard uses English diagnostics and preserves custom validation messages", () => {
+	const key = "FAST_VITE_DIAGNOSTIC_TEST";
+	const previous = process.env[key];
+	const warnings = [];
+	const validate = (rule) =>
+		envGuard({ schema: { [key]: rule }, onInvalid: "warn" }).config.call(
+			{ warn: (message) => warnings.push(message) },
+			{ envDir: false },
+			{ mode: "test" }
+		);
+	try {
+		delete process.env[key];
+		validate(true);
+		assert.equal(warnings.pop(), `[fast-vite:env-guard] Environment variable validation failed:\n- ${key}: Required variable is missing`);
+		process.env[key] = "test-value";
+		validate({ validate: () => false });
+		assert.equal(warnings.pop(), `[fast-vite:env-guard] Environment variable validation failed:\n- ${key}: Custom validation failed`);
+		validate({ validate: () => "调用方自定义校验消息" });
+		assert.equal(warnings.pop(), `[fast-vite:env-guard] Environment variable validation failed:\n- ${key}: 调用方自定义校验消息`);
 	} finally {
 		if (previous === undefined) delete process.env[key];
 		else process.env[key] = previous;
@@ -109,13 +134,13 @@ test("virtual modules resolve sync and async sources", async () => {
 });
 
 test("plugin functions reject empty or unsafe configuration", () => {
-	assert.throws(() => buildInfo({ virtualModuleId: "build-info" }), /必须以 virtual:/);
-	assert.throws(() => buildInfo({ fileName: "." }), /相对路径/);
-	assert.throws(() => compression({ threshold: Number.POSITIVE_INFINITY }), /有限数值/);
+	assert.throws(() => buildInfo({ virtualModuleId: "build-info" }), /must start with virtual:/);
+	assert.throws(() => buildInfo({ fileName: "." }), /relative path/);
+	assert.throws(() => compression({ threshold: Number.POSITIVE_INFINITY }), /finite/);
 	assert.throws(() => compression({ algorithms: null }), /algorithms/);
 	assert.throws(() => htmlTemplate({ data: null }), /data/);
 	assert.throws(() => htmlTemplate({ data: [] }), /data/);
 	assert.throws(() => virtualModules({ modules: null }), /modules/);
 	assert.throws(() => virtualModules({ modules: [] }), /modules/);
-	assert.throws(() => virtualModules({ modules: {} }), /至少需要一个模块/);
+	assert.throws(() => virtualModules({ modules: {} }), /must contain at least one module/);
 });

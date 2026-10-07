@@ -29,10 +29,10 @@ export function generatedFileHeader(method: string): string {
  * @returns 去点号、转小写且去重后的只读集合。
  */
 export function normalizeExtensions(extensions: readonly string[]): ReadonlySet<string> {
-	if (!Array.isArray(extensions)) throw new TypeError("extensions 必须是字符串数组。");
+	if (!Array.isArray(extensions)) throw new TypeError("extensions must be an array of strings.");
 	const normalized = extensions.map((extension) => {
 		if (typeof extension !== "string" || !/^\.?[a-z\d]+$/i.test(extension)) {
-			throw new Error(`非法文件扩展名：${String(extension)}`);
+			throw new Error(`Invalid file extension: ${String(extension)}`);
 		}
 		return extension.replace(/^\./, "").toLowerCase();
 	});
@@ -92,11 +92,11 @@ export function isSafeOutputFileName(fileName: string): boolean {
  */
 export function resolvePathInside(base: string, configuredPath: string, feature: string): string {
 	if (!isSafeOutputFileName(configuredPath)) {
-		throw new Error(`[fast-vite:${feature}] 输出路径必须位于 Vite root 内且是安全相对文件路径：${configuredPath}`);
+		throw new Error(`[fast-vite:${feature}] Output path must be a safe relative file path within Vite root: ${configuredPath}`);
 	}
 	const resolved = path.resolve(base, configuredPath);
 	if (!isPathInside(base, resolved)) {
-		throw new Error(`[fast-vite:${feature}] 输出路径必须位于 Vite root 内：${configuredPath}`);
+		throw new Error(`[fast-vite:${feature}] Output path must be within Vite root: ${configuredPath}`);
 	}
 	return resolved;
 }
@@ -175,7 +175,7 @@ async function assertNoSymbolicLinks(filePath: string): Promise<void> {
 		current = path.join(current, segment);
 		try {
 			if ((await lstat(current)).isSymbolicLink()) {
-				throw new Error(`拒绝通过 symlink 或 junction 写入生成文件：${filePath}`);
+				throw new Error(`Refusing to write a generated file through a symlink or junction: ${filePath}`);
 			}
 		} catch (error) {
 			if (error instanceof Error && "code" in error && error.code === "ENOENT") return;

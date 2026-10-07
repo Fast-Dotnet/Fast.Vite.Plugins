@@ -26,27 +26,31 @@ async function copyTargets(
 	missing: NonNullable<StaticCopyPluginOptions["missing"]> = "error",
 	onWarning: (message: string) => void = () => undefined
 ): Promise<void> {
-	if (targets.length === 0) throw new Error("[fast-vite:static-copy] targets 至少需要一个复制目标。");
+	if (targets.length === 0) throw new Error("[fast-vite:static-copy] targets must contain at least one copy target.");
 	const configuredMissing: unknown = missing;
 	if (configuredMissing !== "error" && configuredMissing !== "warn" && configuredMissing !== "ignore") {
-		throw new Error("[fast-vite:static-copy] missing 只能是 error、warn 或 ignore。");
+		throw new Error("[fast-vite:static-copy] missing must be error, warn, or ignore.");
 	}
-	await assertNoSymlinkInPath(path.parse(outDir).root, outDir, "目标路径");
+	await assertNoSymlinkInPath(path.parse(outDir).root, outDir, "Destination path");
 	const destinations = new Set<string>();
 	for (const target of targets) {
-		if (!target.src.trim() || !target.dest.trim()) throw new Error("[fast-vite:static-copy] src 与 dest 不能为空路径。");
-		if (!isSafeOutputFileName(target.dest)) throw new Error(`[fast-vite:static-copy] dest 必须是合法的构建产物名：${target.dest}`);
+		if (!target.src.trim() || !target.dest.trim()) throw new Error("[fast-vite:static-copy] src and dest must not be empty paths.");
+		if (!isSafeOutputFileName(target.dest)) throw new Error(`[fast-vite:static-copy] dest must be a valid build output name: ${target.dest}`);
 		const source = path.resolve(root, target.src);
 		const destination = path.resolve(outDir, target.dest);
-		if (!isPathInside(outDir, destination)) throw new Error(`[fast-vite:static-copy] 目标必须位于 outDir 内：${target.dest}`);
+		if (!isPathInside(outDir, destination)) throw new Error(`[fast-vite:static-copy] Destination must be within outDir: ${target.dest}`);
 		if (isPathInside(source, destination) || isPathInside(destination, source)) {
-			throw new Error(`[fast-vite:static-copy] 源与目标不能相同或互相包含：${target.src} -> ${target.dest}`);
+			throw new Error(
+				`[fast-vite:static-copy] Source and destination must not be identical or contain one another: ${target.src} -> ${target.dest}`
+			);
 		}
 		const destinationKey = comparablePath(destination);
-		if (destinations.has(destinationKey)) throw new Error(`[fast-vite:static-copy] 多个目标会覆盖同一路径：${target.dest}`);
+		if (destinations.has(destinationKey)) {
+			throw new Error(`[fast-vite:static-copy] Multiple targets would overwrite the same path: ${target.dest}`);
+		}
 		for (const configuredDestination of destinations) {
 			if (isPathInside(configuredDestination, destinationKey) || isPathInside(destinationKey, configuredDestination)) {
-				throw new Error(`[fast-vite:static-copy] 多个目标不能相同或互相包含：${target.dest}`);
+				throw new Error(`[fast-vite:static-copy] Destinations must not be identical or contain one another: ${target.dest}`);
 			}
 		}
 		destinations.add(destinationKey);
@@ -55,26 +59,26 @@ async function copyTargets(
 			await access(source);
 		} catch (error) {
 			if (!(error instanceof Error && "code" in error && error.code === "ENOENT")) throw error;
-			const message = `[fast-vite:static-copy] 源路径不存在：${source}`;
+			const message = `[fast-vite:static-copy] Source path does not exist: ${source}`;
 			if (missing === "error") throw new Error(message, { cause: error });
 			if (missing === "warn") onWarning(message);
 			continue;
 		}
 
 		const sourceBoundary = isPathInside(root, source) ? root : path.parse(source).root;
-		await assertNoSymlinkInPath(sourceBoundary, source, "源路径");
+		await assertNoSymlinkInPath(sourceBoundary, source, "Source path");
 		const existingDestinationParent = await nearestExistingDirectory(path.dirname(destination));
-		await assertNoSymlinkInPath(outDir, existingDestinationParent, "目标路径");
+		await assertNoSymlinkInPath(outDir, existingDestinationParent, "Destination path");
 
 		const sourceStat = await stat(source);
 		const overwrite = target.overwrite ?? true;
 		if (sourceStat.isDirectory()) {
-			if (target.transform) throw new Error(`[fast-vite:static-copy] 目录目标不支持 transform：${target.src}`);
+			if (target.transform) throw new Error(`[fast-vite:static-copy] transform is not supported for directory targets: ${target.src}`);
 			await mkdir(path.dirname(destination), { recursive: true });
 			await cp(source, destination, { errorOnExist: !overwrite, force: overwrite, recursive: true });
 			continue;
 		}
-		if (!sourceStat.isFile()) throw new Error(`[fast-vite:static-copy] 仅支持普通文件和目录：${source}`);
+		if (!sourceStat.isFile()) throw new Error(`[fast-vite:static-copy] Only regular files and directories are supported: ${source}`);
 
 		await mkdir(path.dirname(destination), { recursive: true });
 		if (target.transform) {
@@ -95,24 +99,24 @@ async function copyTargets(
  */
 export function staticCopy(options: StaticCopyPluginOptions): Plugin {
 	const configuredTargets: unknown = options.targets;
-	if (!Array.isArray(configuredTargets)) throw new Error("[fast-vite:static-copy] targets 必须是数组。");
-	if (options.targets.length === 0) throw new Error("[fast-vite:static-copy] targets 至少需要一个复制目标。");
+	if (!Array.isArray(configuredTargets)) throw new Error("[fast-vite:static-copy] targets must be an array.");
+	if (options.targets.length === 0) throw new Error("[fast-vite:static-copy] targets must contain at least one copy target.");
 	for (const target of options.targets) {
 		const configuredTarget: unknown = target;
 		if (typeof configuredTarget !== "object" || configuredTarget === null || Array.isArray(configuredTarget)) {
-			throw new Error("[fast-vite:static-copy] 每个 target 都必须包含字符串 src 与 dest。");
+			throw new Error("[fast-vite:static-copy] Each target must contain string src and dest properties.");
 		}
 		const targetRecord = configuredTarget as Record<string, unknown>;
 		if (typeof targetRecord.src !== "string" || typeof targetRecord.dest !== "string") {
-			throw new Error("[fast-vite:static-copy] 每个 target 都必须包含字符串 src 与 dest。");
+			throw new Error("[fast-vite:static-copy] Each target must contain string src and dest properties.");
 		}
 		if (!target.src.trim() || !isSafeOutputFileName(target.dest)) {
-			throw new Error("[fast-vite:static-copy] src 不能为空，dest 必须是合法的构建产物名。");
+			throw new Error("[fast-vite:static-copy] src must not be empty, and dest must be a valid build output name.");
 		}
 	}
 	const configuredMissing: unknown = options.missing;
 	if (configuredMissing !== undefined && configuredMissing !== "error" && configuredMissing !== "warn" && configuredMissing !== "ignore") {
-		throw new Error("[fast-vite:static-copy] missing 只能是 error、warn 或 ignore。");
+		throw new Error("[fast-vite:static-copy] missing must be error, warn, or ignore.");
 	}
 	let config: ResolvedConfig;
 	const copiedOutputDirectories = new Set<string>();
@@ -159,14 +163,14 @@ function comparablePath(filePath: string): string {
 async function assertNoSymlinkInPath(base: string, candidate: string, label: string): Promise<void> {
 	const relativePath = path.relative(path.resolve(base), path.resolve(candidate));
 	if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) {
-		throw new Error(`[fast-vite:static-copy] ${label}越出允许边界：${candidate}`);
+		throw new Error(`[fast-vite:static-copy] ${label} is outside the allowed boundary: ${candidate}`);
 	}
 	let current = path.resolve(base);
 	for (const segment of relativePath.split(path.sep).filter(Boolean)) {
 		current = path.join(current, segment);
 		try {
 			if ((await lstat(current)).isSymbolicLink()) {
-				throw new Error(`[fast-vite:static-copy] ${label}不能经过 symlink 或 junction：${candidate}`);
+				throw new Error(`[fast-vite:static-copy] ${label} must not pass through a symlink or junction: ${candidate}`);
 			}
 		} catch (error) {
 			if (error instanceof Error && "code" in error && error.code === "ENOENT") return;

@@ -146,10 +146,10 @@ test("CDN module names use own properties and generated bindings avoid user code
 test("CDN plugin rejects invalid global names through its public configuration", async () => {
 	const plugin = cdnImport({ modules: { name: "vue", global: "window.alert()", version: "3.5.0", js: "vue.js" } });
 	plugin.config({}, environment);
-	await assert.rejects(plugin.configResolved({ command: "build", root: process.cwd() }), /非法浏览器全局变量/);
+	await assert.rejects(plugin.configResolved({ command: "build", root: process.cwd() }), /Invalid browser global variable/);
 });
 
 test("CDN plugin rejects invalid runtime module configuration", async () => {
 	assert.throws(() => cdnImport({ modules: undefined }), /modules/);
-	await assert.rejects(configure({ modules: null }), /模块配置必须是对象/);
+	await assert.rejects(configure({ modules: null }), /Module configuration must be an object/);
 });

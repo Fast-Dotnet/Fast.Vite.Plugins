@@ -242,9 +242,9 @@ async function generateRouterMeta(root: string, options: RouterMetaPluginOptions
 		if (resolved.include && !resolved.include(context)) continue;
 		const key = resolved.key?.(context) ?? `/${relativePath}`;
 		const name = resolved.name?.(context) ?? extractedName ?? defaultName;
-		if (!key) throw new Error(`[fast-vite:router-meta] ${relativePath} 生成了空路径键。`);
-		if (!name) throw new Error(`[fast-vite:router-meta] ${relativePath} 生成了空组件名。`);
-		if (keys.has(key)) throw new Error(`[fast-vite:router-meta] 路径键冲突：${key}`);
+		if (!key) throw new Error(`[fast-vite:router-meta] An empty path key was generated for ${relativePath}.`);
+		if (!name) throw new Error(`[fast-vite:router-meta] An empty component name was generated for ${relativePath}.`);
+		if (keys.has(key)) throw new Error(`[fast-vite:router-meta] Conflicting path key: ${key}`);
 		keys.add(key);
 		records.push([key, name]);
 	}
@@ -302,14 +302,14 @@ export function routerMeta(options: RouterMetaPluginOptions = {}): Plugin {
 
 function resolveOptions(options: RouterMetaPluginOptions): ResolvedOptions {
 	const extensions = normalizeExtensions(options.extensions ?? DEFAULT_EXTENSIONS);
-	if (options.dir !== undefined && !options.dir.trim()) throw new Error("[fast-vite:router-meta] dir 不能为空路径。");
-	if (options.output !== undefined && !/\.json$/i.test(options.output)) throw new Error("[fast-vite:router-meta] output 必须是 .json 文件。");
-	if (extensions.size === 0) throw new Error("[fast-vite:router-meta] extensions 至少需要一个扩展名。");
+	if (options.dir !== undefined && !options.dir.trim()) throw new Error("[fast-vite:router-meta] dir must not be an empty path.");
+	if (options.output !== undefined && !/\.json$/i.test(options.output)) throw new Error("[fast-vite:router-meta] output must be a .json file.");
+	if (extensions.size === 0) throw new Error("[fast-vite:router-meta] extensions must contain at least one extension.");
 	if (options.indent !== undefined && (!Number.isInteger(options.indent) || options.indent < 0 || options.indent > 10)) {
-		throw new Error("[fast-vite:router-meta] indent 必须是 0 到 10 之间的整数。");
+		throw new Error("[fast-vite:router-meta] indent must be an integer between 0 and 10.");
 	}
 	if (options.debounce !== undefined && (!Number.isFinite(options.debounce) || options.debounce < 0)) {
-		throw new Error("[fast-vite:router-meta] debounce 必须是大于或等于 0 的有限数值。");
+		throw new Error("[fast-vite:router-meta] debounce must be a finite non-negative number.");
 	}
 	return {
 		debounce: options.debounce ?? 80,

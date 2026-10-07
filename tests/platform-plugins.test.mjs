@@ -26,7 +26,7 @@ test("bundle budget reports per-file, total and missing-match failures", async (
 	);
 	assert.equal(warnings.length, 1);
 	assert.match(warnings[0], /scripts: assets\/app\.js/);
-	assert.match(warnings[0], /code: 合计 8 B > 7 B/);
+	assert.match(warnings[0], /code: total 8 B > 7 B/);
 	assert.match(warnings[0], /images: requireMatch/);
 });
 
@@ -40,13 +40,13 @@ test("plugin functions reject ambiguous or unsafe configuration", () => {
 					{ limit: 2, name: "same" },
 				],
 			}),
-		/不能重复/
+		/Duplicate budget name/
 	);
 	assert.throws(() => devRestart({ paths: "schema/**/*.json" }), /glob/);
 	assert.throws(() => subresourceIntegrity({ algorithms: [] }), /algorithms/);
 	assert.throws(() => subresourceIntegrity({ algorithms: null }), /algorithms/);
-	assert.throws(() => compression({ minRatio: Number.NaN }), /有限数值/);
-	assert.throws(() => bundleBudget({ budgets: [{ limit: 1 }, { limit: 2, name: "budget-1" }] }), /不能重复/);
+	assert.throws(() => compression({ minRatio: Number.NaN }), /finite/);
+	assert.throws(() => bundleBudget({ budgets: [{ limit: 1 }, { limit: 2, name: "budget-1" }] }), /Duplicate budget name/);
 	assert.throws(() => bundleBudget({ budgets: [{ limit: 1, scope: "" }] }), /scope/);
 	assert.throws(() => bundleBudget({ budgets: [{ limit: 1, mode: null }] }), /mode/);
 	assert.throws(() => bundleBudget({ budgets: [{ limit: 1 }], onExceed: "" }), /onExceed/);
@@ -54,7 +54,7 @@ test("plugin functions reject ambiguous or unsafe configuration", () => {
 	for (const schema of [undefined, null, "invalid", [], {}]) {
 		assert.throws(() => envGuard({ schema }), /schema/);
 	}
-	assert.throws(() => envGuard({ schema: { VITE_API_URL: null } }), /规则必须是 true 或对象/);
+	assert.throws(() => envGuard({ schema: { VITE_API_URL: null } }), /must be true or an object/);
 });
 
 test("bundle budget plugin can fail a real Vite Web application build", async () => {
@@ -89,7 +89,7 @@ test("post-build plugin order is accepted forward and rejected in reverse", asyn
 			...buildOptions,
 			plugins: [compression(), bundleBudget({ budgets: [{ limit: 1 }] }), subresourceIntegrity()],
 		}),
-		/顺序必须是 subresource-integrity/
+		/order must be subresource-integrity/
 	);
 });
 

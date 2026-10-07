@@ -182,22 +182,22 @@ defineOptions({ title: "name: \"StringName\"", nested: { name: "NestedName" }, n
 
 test("generator plugins reject conflicts, unsupported outputs and paths outside root", async () => {
 	assert.throws(() => componentRegistry({ conflict: "" }), /conflict/);
-	assert.throws(() => componentRegistry({ output: "types/components.d.ts", dts: "types/components.d.ts" }), /不能指向同一文件/);
+	assert.throws(() => componentRegistry({ output: "types/components.d.ts", dts: "types/components.d.ts" }), /must not refer to the same file/);
 	assert.throws(() => componentRegistry({ output: "src/components.js" }), /TypeScript/);
 	assert.throws(() => componentRegistry({ dts: "types/components.ts" }), /\.d\.ts/);
 	assert.throws(() => svgIcons({ output: "src/icons.js" }), /TypeScript/);
 
 	const componentPlugin = configure(componentRegistry({ dirs: "tests/fixtures/components", output: "../components.ts" }), workspaceRoot);
-	await assert.rejects(componentPlugin.buildStart(), /必须位于 Vite root 内/);
+	await assert.rejects(componentPlugin.buildStart(), /must be (?:a safe relative file path )?within Vite root/);
 	const routerPlugin = configure(routerMeta({ dir: "tests/fixtures/views", output: "../routes.json" }), workspaceRoot);
-	await assert.rejects(routerPlugin.buildStart(), /必须位于 Vite root 内/);
+	await assert.rejects(routerPlugin.buildStart(), /must be (?:a safe relative file path )?within Vite root/);
 
 	const duplicatePlugin = configure(
 		componentRegistry({ dirs: "tests/fixtures/components", output: "duplicate.generated.ts", dts: false, name: () => "Duplicate" }),
 		workspaceRoot,
 		{ error: assert.fail, warn: () => undefined }
 	);
-	await assert.rejects(duplicatePlugin.buildStart(), /组件名称冲突/);
+	await assert.rejects(duplicatePlugin.buildStart(), /Conflicting component name/);
 });
 
 test("generator watchers clean up when a middleware-mode server closes", () => {

@@ -80,7 +80,7 @@ export function bundleBudget(options: BundleBudgetPluginOptions): Plugin {
 	validateBudgets(options.budgets);
 	const configuredOnExceed: unknown = options.onExceed;
 	if (configuredOnExceed !== undefined && configuredOnExceed !== "error" && configuredOnExceed !== "warn") {
-		throw new Error("[fast-vite:bundle-budget] onExceed 只能是 error 或 warn。");
+		throw new Error("[fast-vite:bundle-budget] onExceed must be error or warn.");
 	}
 
 	return {
@@ -110,25 +110,25 @@ export function bundleBudget(options: BundleBudgetPluginOptions): Plugin {
 
 function validateBudgets(budgets: readonly BundleBudgetRule[]): void {
 	const configuredBudgets: unknown = budgets;
-	if (!Array.isArray(configuredBudgets)) throw new Error("[fast-vite:bundle-budget] budgets 必须是数组。");
-	if (budgets.length === 0) throw new Error("[fast-vite:bundle-budget] budgets 至少需要一条预算规则。");
+	if (!Array.isArray(configuredBudgets)) throw new Error("[fast-vite:bundle-budget] budgets must be an array.");
+	if (budgets.length === 0) throw new Error("[fast-vite:bundle-budget] budgets must contain at least one budget rule.");
 	const configuredNames = new Set<string>();
 
 	for (const [index, budget] of budgets.entries()) {
 		const name = budget.name ?? `budget-${index + 1}`;
-		if (!name.trim()) throw new Error(`[fast-vite:bundle-budget] 第 ${index + 1} 条预算的 name 不能为空。`);
-		if (configuredNames.has(name)) throw new Error(`[fast-vite:bundle-budget] 预算名称不能重复：${name}`);
+		if (!name.trim()) throw new Error(`[fast-vite:bundle-budget] Budget ${index + 1}: name must not be empty.`);
+		if (configuredNames.has(name)) throw new Error(`[fast-vite:bundle-budget] Duplicate budget name: ${name}`);
 		configuredNames.add(name);
 		if (!Number.isSafeInteger(budget.limit) || budget.limit < 0) {
-			throw new Error(`[fast-vite:bundle-budget] 第 ${index + 1} 条预算的 limit 必须是大于或等于 0 的安全整数。`);
+			throw new Error(`[fast-vite:bundle-budget] Budget ${index + 1}: limit must be a non-negative safe integer.`);
 		}
 		const configuredScope: unknown = budget.scope;
 		if (configuredScope !== undefined && configuredScope !== "file" && configuredScope !== "total") {
-			throw new Error(`[fast-vite:bundle-budget] 第 ${index + 1} 条预算的 scope 只能是 file 或 total。`);
+			throw new Error(`[fast-vite:bundle-budget] Budget ${index + 1}: scope must be file or total.`);
 		}
 		const configuredMode: unknown = budget.mode;
 		if (configuredMode !== undefined && configuredMode !== "raw" && configuredMode !== "gzip" && configuredMode !== "brotli") {
-			throw new Error(`[fast-vite:bundle-budget] 第 ${index + 1} 条预算的 mode 只能是 raw、gzip 或 brotli。`);
+			throw new Error(`[fast-vite:bundle-budget] Budget ${index + 1}: mode must be raw, gzip, or brotli.`);
 		}
 	}
 }
@@ -151,20 +151,18 @@ async function measureOutput(output: MeasurableBundleOutput, mode: BundleSizeMod
 }
 
 function formatFailures(evaluations: readonly BundleBudgetEvaluation[]): string {
-	const lines = ["[fast-vite:bundle-budget] 构建产物超出预算："];
+	const lines = ["[fast-vite:bundle-budget] Build output budget checks failed:"];
 	for (const evaluation of evaluations) {
 		if (evaluation.missingMatch) {
-			lines.push(`- ${evaluation.name}: requireMatch 已启用，但没有匹配任何产物`);
+			lines.push(`- ${evaluation.name}: requireMatch is enabled, but no build outputs matched`);
 			continue;
 		}
 		if (evaluation.scope === "total") {
-			lines.push(`- ${evaluation.name}: 合计 ${formatBytes(evaluation.actualBytes)} > ${formatBytes(evaluation.limit)} (${evaluation.mode})`);
+			lines.push(`- ${evaluation.name}: total ${formatBytes(evaluation.actualBytes)} > ${formatBytes(evaluation.limit)} (${evaluation.mode})`);
 			continue;
 		}
 		for (const file of evaluation.files.filter((item) => item.bytes > evaluation.limit)) {
-			lines.push(
-				`- ${evaluation.name}: ${file.fileName} 为 ${formatBytes(file.bytes)} > ${formatBytes(evaluation.limit)} (${evaluation.mode})`
-			);
+			lines.push(`- ${evaluation.name}: ${file.fileName}: ${formatBytes(file.bytes)} > ${formatBytes(evaluation.limit)} (${evaluation.mode})`);
 		}
 	}
 	return lines.join("\n");

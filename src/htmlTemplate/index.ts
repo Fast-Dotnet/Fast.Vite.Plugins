@@ -52,7 +52,7 @@ function replaceHtmlPlaceholders(html: string, data: HtmlTemplateData, escape = 
 export function htmlTemplate(options: HtmlTemplatePluginOptions): Plugin {
 	const configuredData: unknown = options.data;
 	if (typeof configuredData !== "function" && (typeof configuredData !== "object" || configuredData === null || Array.isArray(configuredData))) {
-		throw new Error("[fast-vite:html-template] data 必须是对象或函数。");
+		throw new Error("[fast-vite:html-template] data must be an object or a function.");
 	}
 	let env: ConfigEnv;
 
@@ -66,7 +66,7 @@ export function htmlTemplate(options: HtmlTemplatePluginOptions): Plugin {
 			const data = typeof options.data === "function" ? await options.data(context) : options.data;
 			const transformedHtml = replaceHtmlPlaceholders(html, data, options.escape ?? true);
 			if (options.strict && /\{\{\s*[_a-z][$\w.-]*\s*\}\}/i.test(transformedHtml)) {
-				throw new Error("[fast-vite:html-template] HTML 中仍有未解析的占位符。");
+				throw new Error("[fast-vite:html-template] HTML contains unresolved placeholders.");
 			}
 			const tags = options.tags ? (typeof options.tags === "function" ? await options.tags(context) : options.tags) : [];
 			return { html: transformedHtml, tags: [...tags] };

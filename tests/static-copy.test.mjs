@@ -22,9 +22,9 @@ test("static copy transforms files and blocks destinations outside outDir", asyn
 		plugin.buildStart();
 		await plugin.writeBundle({ dir: outDir });
 		assert.equal(await readFile(destinationFile, "utf8"), "HELLO");
-		assert.throws(() => staticCopy({ targets: [{ src: "source.txt", dest: "../escape.txt" }] }), /构建产物/);
+		assert.throws(() => staticCopy({ targets: [{ src: "source.txt", dest: "../escape.txt" }] }), /build output/);
 		assert.throws(() => staticCopy({ targets: null }), /targets/);
-		assert.throws(() => staticCopy({ targets: [null] }), /每个 target/);
+		assert.throws(() => staticCopy({ targets: [null] }), /Each target/);
 		assert.throws(() => staticCopy({ targets: [{ src: "source.txt", dest: "copied.txt" }], missing: "" }), /missing/);
 	} finally {
 		await unlink(destinationFile);

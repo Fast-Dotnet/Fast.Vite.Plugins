@@ -50,7 +50,7 @@ function parseSvg(source: string): ParsedSvg {
 		.replace(/<!doctype[\s\S]*?>/gi, "")
 		.trim();
 	const match = /<svg\b([^>]*)>([\s\S]*?)<\/svg\s*>/i.exec(normalized);
-	if (!match) throw new Error("[fast-vite:svg-icons] SVG 文件必须包含完整的 <svg>...</svg> 根元素。");
+	if (!match) throw new Error("[fast-vite:svg-icons] SVG files must contain a complete <svg>...</svg> root element.");
 
 	const attributes: Record<string, SvgAttributeValue> = {};
 	const attributeSource = match[1] ?? "";
@@ -96,10 +96,16 @@ async function scanSvgIcons(root: string, options: SvgIconsPluginOptions = {}): 
 
 		const name = resolved.name?.(context) ?? defaultName;
 		if (!isValidBindingIdentifier(name)) {
-			throw new Error(`[fast-vite:svg-icons] 组件名不能作为生成代码绑定名 ${JSON.stringify(name)}：${relativePath}`);
+			throw new Error(
+				`[fast-vite:svg-icons] Component name ${JSON.stringify(name)} is not a valid binding identifier for generated code: ${relativePath}`
+			);
 		}
 		const previous = icons.get(name);
-		if (previous) throw new Error(`[fast-vite:svg-icons] 图标组件名冲突 ${JSON.stringify(name)}：${previous.relativePath} 与 ${relativePath}`);
+		if (previous) {
+			throw new Error(
+				`[fast-vite:svg-icons] Conflicting icon component name ${JSON.stringify(name)}: ${previous.relativePath} and ${relativePath}`
+			);
+		}
 
 		const parsed = parseSvg(await readFile(absolutePath, "utf8"));
 		const attributes = { ...resolved.defaultAttributes, ...parsed.attributes };
@@ -128,7 +134,7 @@ function resolveSvgIconOutputs(outputFile: string, icons: readonly ScannedSvgIco
 		const modulePath = `./${relativeName}/index`;
 		const filePath = path.resolve(outputDirectory, relativeName, "index.tsx");
 		if (!isPathInside(outputDirectory, filePath)) {
-			throw new Error(`[fast-vite:svg-icons] 图标组件输出路径越出索引目录：${icon.relativePath}`);
+			throw new Error(`[fast-vite:svg-icons] Icon component output path is outside the index directory: ${icon.relativePath}`);
 		}
 		return { filePath, icon, modulePath };
 	});
@@ -137,7 +143,7 @@ function resolveSvgIconOutputs(outputFile: string, icons: readonly ScannedSvgIco
 		const key = output.modulePath.toLowerCase();
 		const previous = modulePaths.get(key);
 		if (previous) {
-			throw new Error(`[fast-vite:svg-icons] 图标模块路径冲突：${previous.icon.relativePath} 与 ${output.icon.relativePath}`);
+			throw new Error(`[fast-vite:svg-icons] Conflicting icon module paths: ${previous.icon.relativePath} and ${output.icon.relativePath}`);
 		}
 		modulePaths.set(key, output);
 	}
@@ -223,7 +229,7 @@ function tokenizeSvgContent(content: string): string[] {
 		if (text) tokens.push(text);
 		if (content.startsWith("<!--", tagStart)) {
 			const commentEnd = content.indexOf("-->", tagStart + 4);
-			if (commentEnd < 0) throw new Error("[fast-vite:svg-icons] SVG 注释未闭合。");
+			if (commentEnd < 0) throw new Error("[fast-vite:svg-icons] Unterminated SVG comment.");
 			tokens.push(content.slice(tagStart, commentEnd + 3));
 			index = commentEnd + 3;
 			continue;
@@ -244,7 +250,7 @@ function tokenizeSvgContent(content: string): string[] {
 				break;
 			}
 		}
-		if (tagEnd < 0) throw new Error("[fast-vite:svg-icons] SVG 标签未闭合。");
+		if (tagEnd < 0) throw new Error("[fast-vite:svg-icons] Unterminated SVG tag.");
 		tokens.push(content.slice(tagStart, tagEnd + 1).trim());
 		index = tagEnd + 1;
 	}
@@ -253,7 +259,7 @@ function tokenizeSvgContent(content: string): string[] {
 
 function renderSvgTag(tag: string, depth: number): string[] {
 	if (tag.startsWith("<!") || tag.startsWith("<?")) {
-		throw new Error(`[fast-vite:svg-icons] SVG 内部包含不支持的声明：${tag}`);
+		throw new Error(`[fast-vite:svg-icons] SVG contains an unsupported declaration: ${tag}`);
 	}
 	if (tag.startsWith("</")) return [`${"\t".repeat(depth)}${tag}`];
 
@@ -261,7 +267,7 @@ function renderSvgTag(tag: string, depth: number): string[] {
 	const body = tag.slice(1, selfClosing ? -2 : -1).trim();
 	const whitespaceIndex = body.search(/\s/u);
 	const name = whitespaceIndex < 0 ? body : body.slice(0, whitespaceIndex);
-	if (!name || name.includes("/")) throw new Error(`[fast-vite:svg-icons] 无法解析 SVG 标签：${tag}`);
+	if (!name || name.includes("/")) throw new Error(`[fast-vite:svg-icons] Unable to parse SVG tag: ${tag}`);
 	const attributes = splitSvgAttributes(whitespaceIndex < 0 ? "" : body.slice(whitespaceIndex + 1));
 	return renderSvgElementStart(name, attributes, selfClosing, depth);
 }
@@ -286,7 +292,7 @@ function splitSvgAttributes(source: string): string[] {
 			else if (/\s/u.test(character ?? "")) break;
 			index += 1;
 		}
-		if (quote) throw new Error(`[fast-vite:svg-icons] SVG 属性引号未闭合：${source.slice(start)}`);
+		if (quote) throw new Error(`[fast-vite:svg-icons] Unterminated quoted SVG attribute: ${source.slice(start)}`);
 		attributes.push(source.slice(start, index));
 	}
 	return attributes;
@@ -386,13 +392,13 @@ function numericDimension(value: SvgAttributeValue | undefined): number | undefi
 
 function resolveOptions(options: SvgIconsPluginOptions): ResolvedOptions {
 	if (options.debounce !== undefined && (!Number.isFinite(options.debounce) || options.debounce < 0)) {
-		throw new Error("[fast-vite:svg-icons] debounce 必须是大于或等于 0 的有限数值。");
+		throw new Error("[fast-vite:svg-icons] debounce must be a finite non-negative number.");
 	}
 	const output = options.output ?? "src/icons/index.ts";
 	if (!/\.[cm]?ts$/i.test(output)) {
-		throw new Error("[fast-vite:svg-icons] output 必须使用 TypeScript 输出扩展名 .ts、.mts 或 .cts。");
+		throw new Error("[fast-vite:svg-icons] output must use a TypeScript extension: .ts, .mts, or .cts.");
 	}
-	if (options.dir !== undefined && !options.dir.trim()) throw new Error("[fast-vite:svg-icons] dir 不能为空路径。");
+	if (options.dir !== undefined && !options.dir.trim()) throw new Error("[fast-vite:svg-icons] dir must not be an empty path.");
 	return {
 		componentPrefix: options.componentPrefix ?? "",
 		componentSuffix: options.componentSuffix ?? "",

@@ -31,7 +31,7 @@ export interface VirtualModulesPluginOptions {
 export function virtualModules(options: VirtualModulesPluginOptions): Plugin {
 	const configuredModules: unknown = options.modules;
 	if (typeof configuredModules !== "object" || configuredModules === null || Array.isArray(configuredModules)) {
-		throw new Error("[fast-vite:virtual-modules] modules 必须是对象。");
+		throw new Error("[fast-vite:virtual-modules] modules must be an object.");
 	}
 	const { modules } = options;
 	const ids = Object.keys(modules);
@@ -39,9 +39,9 @@ export function virtualModules(options: VirtualModulesPluginOptions): Plugin {
 	let config: ResolvedConfig;
 	let env: ConfigEnv;
 
-	if (ids.length === 0) throw new Error("[fast-vite:virtual-modules] modules 至少需要一个模块。");
+	if (ids.length === 0) throw new Error("[fast-vite:virtual-modules] modules must contain at least one module.");
 	if (ids.some((id) => !id.startsWith("virtual:"))) {
-		throw new Error("[fast-vite:virtual-modules] 所有模块 ID 都必须以 virtual: 开头。");
+		throw new Error("[fast-vite:virtual-modules] All module IDs must start with virtual:.");
 	}
 
 	return {

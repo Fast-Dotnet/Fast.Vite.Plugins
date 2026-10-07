@@ -18,7 +18,7 @@ const RESOLVED_PREFIX = "\0fast-vite-plugins:";
  */
 async function resolveBuildInformation(root: string, options: BuildInfoPluginOptions, env: ConfigEnv): Promise<BuildInformation> {
 	const version = options.version ?? (await readPackageVersion(path.resolve(root, options.packageJson ?? "package.json")));
-	if (!version) throw new Error("[fast-vite:build-info] 无法读取项目版本，请配置 version 或有效的 packageJson。");
+	if (!version) throw new Error("[fast-vite:build-info] Unable to read the project version. Configure version or a valid packageJson.");
 
 	const context: BuildInfoContext = { ...env, root };
 	const customData = typeof options.data === "function" ? await options.data(context) : (options.data ?? {});
@@ -44,7 +44,7 @@ export function buildInfo(options: BuildInfoPluginOptions = {}): Plugin {
 	const fileName = normalizeOutputFile(options.fileName ?? "build-info.json");
 	const virtualModuleId = options.virtualModuleId ?? "virtual:fast-vite/build-info";
 	if (virtualModuleId && !virtualModuleId.startsWith("virtual:")) {
-		throw new Error("[fast-vite:build-info] virtualModuleId 必须以 virtual: 开头，或设为 false。");
+		throw new Error("[fast-vite:build-info] virtualModuleId must start with virtual: or be set to false.");
 	}
 	let resolvedVirtualId: string | undefined;
 	if (virtualModuleId !== false) resolvedVirtualId = `${RESOLVED_PREFIX}${virtualModuleId}`;
@@ -109,7 +109,7 @@ function normalizeOutputFile(fileName: string): string {
 		/^[a-z]:\//i.test(normalized) ||
 		normalized.split("/").includes("..")
 	) {
-		throw new Error(`[fast-vite:build-info] fileName 必须是构建目录内的相对路径：${fileName}`);
+		throw new Error(`[fast-vite:build-info] fileName must be a relative path within the build directory: ${fileName}`);
 	}
 	return normalized;
 }

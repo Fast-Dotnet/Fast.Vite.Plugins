@@ -25,16 +25,16 @@ export function compression(options: CompressionPluginOptions = {}): Plugin {
 	const minRatio = options.minRatio ?? 0.95;
 	const filter = options.filter ?? DEFAULT_FILTER;
 
-	if (!Number.isFinite(threshold) || threshold < 0) throw new Error("[fast-vite:compression] threshold 必须是大于或等于 0 的有限数值。");
+	if (!Number.isFinite(threshold) || threshold < 0) throw new Error("[fast-vite:compression] threshold must be a finite non-negative number.");
 	if (!Number.isFinite(minRatio) || minRatio <= 0 || minRatio > 1) {
-		throw new Error("[fast-vite:compression] minRatio 必须是大于 0 且不超过 1 的有限数值。");
+		throw new Error("[fast-vite:compression] minRatio must be a finite number greater than 0 and at most 1.");
 	}
 	if (
 		!Array.isArray(algorithmValues) ||
 		algorithmValues.length === 0 ||
 		algorithmValues.some((algorithm) => algorithm !== "gzip" && algorithm !== "brotli")
 	) {
-		throw new Error("[fast-vite:compression] algorithms 只能包含 gzip 或 brotli。");
+		throw new Error("[fast-vite:compression] algorithms must contain only gzip or brotli.");
 	}
 	const algorithms = [...new Set(algorithmValues)] as CompressionAlgorithm[];
 
@@ -58,7 +58,9 @@ export function compression(options: CompressionPluginOptions = {}): Plugin {
 						const fileName =
 							options.fileName?.(originalFileName, algorithm) ?? `${originalFileName}${algorithm === "gzip" ? ".gz" : ".br"}`;
 						if (!isSafeOutputFileName(fileName) || emittedNames.has(fileName)) {
-							throw new Error(`[fast-vite:compression] 压缩文件名无效或与现有产物冲突：${fileName}`);
+							throw new Error(
+								`[fast-vite:compression] Compressed file name is invalid or conflicts with an existing output: ${fileName}`
+							);
 						}
 						this.emitFile({ type: "asset", fileName, source: compressed });
 						emittedNames.add(fileName);

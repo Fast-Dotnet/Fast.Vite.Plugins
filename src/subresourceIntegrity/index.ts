@@ -46,7 +46,7 @@ function generateIntegrity(
 function injectIntegrity(html: string, options: IntegrityInjectionOptions): IntegrityInjectionResult {
 	const configuredIntegrities: unknown = options.integrities;
 	if (typeof configuredIntegrities !== "object" || configuredIntegrities === null || Array.isArray(configuredIntegrities)) {
-		throw new Error("[fast-vite:subresource-integrity] integrities 必须是对象。");
+		throw new Error("[fast-vite:subresource-integrity] integrities must be an object.");
 	}
 	const injected = new Set<string>();
 	const missing = new Set<string>();
@@ -54,9 +54,9 @@ function injectIntegrity(html: string, options: IntegrityInjectionOptions): Inte
 	const base = options.base ?? "/";
 	const crossorigin = options.crossorigin ?? "anonymous";
 	const overwrite = options.overwrite ?? true;
-	if (!isSafeOutputFileName(htmlFileName)) throw new Error("[fast-vite:subresource-integrity] htmlFileName 必须是安全的构建产物名。");
+	if (!isSafeOutputFileName(htmlFileName)) throw new Error("[fast-vite:subresource-integrity] htmlFileName must be a safe build output name.");
 	if (options.crossorigin !== undefined && ![false, "anonymous", "use-credentials"].includes(options.crossorigin)) {
-		throw new Error("[fast-vite:subresource-integrity] crossorigin 只能是 false、anonymous 或 use-credentials。");
+		throw new Error("[fast-vite:subresource-integrity] crossorigin must be false, anonymous, or use-credentials.");
 	}
 
 	const transformed = transformHtmlTags(html, (tag) => {
@@ -98,7 +98,7 @@ function injectIntegrity(html: string, options: IntegrityInjectionOptions): Inte
  */
 export function subresourceIntegrity(options: SubresourceIntegrityPluginOptions = {}): Plugin {
 	if (options.crossorigin !== undefined && ![false, "anonymous", "use-credentials"].includes(options.crossorigin)) {
-		throw new Error("[fast-vite:subresource-integrity] crossorigin 只能是 false、anonymous 或 use-credentials。");
+		throw new Error("[fast-vite:subresource-integrity] crossorigin must be false, anonymous, or use-credentials.");
 	}
 	const configuredAlgorithms: unknown = options.algorithms;
 	const algorithms = normalizeAlgorithms(configuredAlgorithms === undefined ? "sha384" : configuredAlgorithms);
@@ -141,7 +141,7 @@ export function subresourceIntegrity(options: SubresourceIntegrityPluginOptions 
 
 				if (options.strict && missing.size > 0) {
 					this.error(
-						`[fast-vite:subresource-integrity] 以下本地 HTML 资源不在构建产物中：\n${[...missing]
+						`[fast-vite:subresource-integrity] The following local HTML resources are missing from the build outputs:\n${[...missing]
 							.sort(compareStrings)
 							.map((item) => `- ${item}`)
 							.join("\n")}`
@@ -150,7 +150,7 @@ export function subresourceIntegrity(options: SubresourceIntegrityPluginOptions 
 
 				if (manifestFileName) {
 					if (Object.hasOwn(bundle, manifestFileName)) {
-						this.error(`[fast-vite:subresource-integrity] 完整性清单与现有产物冲突：${manifestFileName}`);
+						this.error(`[fast-vite:subresource-integrity] Integrity manifest conflicts with an existing output: ${manifestFileName}`);
 					}
 					this.emitFile({ type: "asset", fileName: manifestFileName, source: `${JSON.stringify(integrities, null, 2)}\n` });
 				}
@@ -168,7 +168,7 @@ function normalizeAlgorithms(configured: unknown): SubresourceIntegrityAlgorithm
 			(algorithm) => typeof algorithm !== "string" || !SUPPORTED_ALGORITHMS.has(algorithm as SubresourceIntegrityAlgorithm)
 		)
 	) {
-		throw new Error("[fast-vite:subresource-integrity] algorithms 只能包含 sha256、sha384 或 sha512，且不能为空。");
+		throw new Error("[fast-vite:subresource-integrity] algorithms must be non-empty and contain only sha256, sha384, or sha512.");
 	}
 	return [...new Set(configuredAlgorithms)] as SubresourceIntegrityAlgorithm[];
 }
@@ -279,7 +279,7 @@ function resolveManifestFileName(manifest: boolean | string | undefined): string
 	if (!manifest) return undefined;
 	const fileName = manifest === true ? "integrity-manifest.json" : normalizePath(manifest);
 	if (!isSafeOutputFileName(fileName)) {
-		throw new Error(`[fast-vite:subresource-integrity] manifest 必须是 outDir 内的安全相对路径：${fileName}`);
+		throw new Error(`[fast-vite:subresource-integrity] manifest must be a safe relative path within outDir: ${fileName}`);
 	}
 	return fileName;
 }

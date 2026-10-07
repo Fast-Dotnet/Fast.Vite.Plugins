@@ -15,7 +15,9 @@ export function assertPostBuildPluginOrder(config: ResolvedConfig): void {
 		const previousPosition = positions.get(previous);
 		const currentPosition = positions.get(current);
 		if (previousPosition !== undefined && currentPosition !== undefined && previousPosition > currentPosition) {
-			throw new Error("[fast-vite] 产物插件顺序必须是 subresource-integrity → bundle-budget → compression；请按该顺序配置 plugins。");
+			throw new Error(
+				"[fast-vite] Output plugin order must be subresource-integrity -> bundle-budget -> compression. Configure plugins in this order."
+			);
 		}
 	}
 }

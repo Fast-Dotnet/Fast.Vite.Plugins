@@ -335,20 +335,28 @@ async function scanComponents(
 
 			const name = resolved.name?.(context) ?? defaultName;
 			if (!isValidBindingIdentifier(name)) {
-				throw new Error(`[fast-vite:component-registry] 组件名称 ${JSON.stringify(name)} 不能作为生成代码绑定名：${relativePath}`);
+				throw new Error(
+					`[fast-vite:component-registry] Component name ${JSON.stringify(name)} is not a valid binding identifier for generated code: ${relativePath}`
+				);
 			}
 			const source = await readFile(absolutePath, "utf8");
 			if (inspectComponentName(source, extension.toLowerCase()) === "missing") {
-				onWarning(`[fast-vite:component-registry] 组件未显式配置运行时 name，将按已配置 name 继续生成注册代码：${relativePath}`);
+				onWarning(
+					`[fast-vite:component-registry] The component has no explicit runtime name. Registration code will use the configured name: ${relativePath}`
+				);
 			}
 
 			const component: ScannedComponent = { ...context, name };
 			const previous = components.get(name);
 			if (previous && resolved.conflict === "error") {
-				throw new Error(`[fast-vite:component-registry] 组件名称冲突 ${JSON.stringify(name)}：${previous.absolutePath} 与 ${absolutePath}`);
+				throw new Error(
+					`[fast-vite:component-registry] Conflicting component name ${JSON.stringify(name)}: ${previous.absolutePath} and ${absolutePath}`
+				);
 			}
 			if (previous && resolved.conflict === "warn") {
-				onWarning(`[fast-vite:component-registry] 忽略重名组件 ${JSON.stringify(name)}：${absolutePath}；已使用 ${previous.absolutePath}`);
+				onWarning(
+					`[fast-vite:component-registry] Ignoring duplicate component ${JSON.stringify(name)}: ${absolutePath}; already registered from ${previous.absolutePath}`
+				);
 			}
 			if (!previous || resolved.conflict === "overwrite") components.set(name, component);
 		}
@@ -471,29 +479,29 @@ function resolveOptions(options: ComponentRegistryPluginOptions): ResolvedOption
 	const dirs = options.dirs ?? "src/components";
 	const resolvedDirs = typeof dirs === "string" ? [dirs] : dirs;
 	const extensions = normalizeExtensions(options.extensions ?? DEFAULT_EXTENSIONS);
-	if (resolvedDirs.length === 0) throw new Error("[fast-vite:component-registry] dirs 至少需要一个目录。");
+	if (resolvedDirs.length === 0) throw new Error("[fast-vite:component-registry] dirs must contain at least one directory.");
 	if (resolvedDirs.some((directory) => typeof directory !== "string" || !directory.trim())) {
-		throw new Error("[fast-vite:component-registry] dirs 不能包含空路径。");
+		throw new Error("[fast-vite:component-registry] dirs must not contain empty paths.");
 	}
-	if (extensions.size === 0) throw new Error("[fast-vite:component-registry] extensions 至少需要一个扩展名。");
+	if (extensions.size === 0) throw new Error("[fast-vite:component-registry] extensions must contain at least one extension.");
 	const configuredConflict: unknown = options.conflict;
 	if (configuredConflict !== undefined && configuredConflict !== "error" && configuredConflict !== "warn" && configuredConflict !== "overwrite") {
-		throw new Error("[fast-vite:component-registry] conflict 只能是 error、warn 或 overwrite。");
+		throw new Error("[fast-vite:component-registry] conflict must be error, warn, or overwrite.");
 	}
 	if (options.output === false && options.dts === false) {
-		throw new Error("[fast-vite:component-registry] output 与 dts 不能同时关闭。");
+		throw new Error("[fast-vite:component-registry] output and dts must not both be disabled.");
 	}
 	if (options.debounce !== undefined && (!Number.isFinite(options.debounce) || options.debounce < 0)) {
-		throw new Error("[fast-vite:component-registry] debounce 必须是大于或等于 0 的有限数值。");
+		throw new Error("[fast-vite:component-registry] debounce must be a finite non-negative number.");
 	}
 	const output = options.output ?? "src/components/index.ts";
 	const dts = options.dts ?? "types/components.d.ts";
 	if (output && !/\.[cm]?ts$/i.test(output)) {
-		throw new Error("[fast-vite:component-registry] output 必须使用 TypeScript 输出扩展名 .ts、.mts 或 .cts。");
+		throw new Error("[fast-vite:component-registry] output must use a TypeScript extension: .ts, .mts, or .cts.");
 	}
-	if (dts && !/\.d\.ts$/i.test(dts)) throw new Error("[fast-vite:component-registry] dts 必须以 .d.ts 结尾。");
+	if (dts && !/\.d\.ts$/i.test(dts)) throw new Error("[fast-vite:component-registry] dts must end with .d.ts.");
 	if (output && dts && path.resolve(output) === path.resolve(dts)) {
-		throw new Error("[fast-vite:component-registry] output 与 dts 不能指向同一文件。");
+		throw new Error("[fast-vite:component-registry] output and dts must not refer to the same file.");
 	}
 	return {
 		conflict: options.conflict ?? "error",

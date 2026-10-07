@@ -50,7 +50,7 @@ interface GeneratedSourceMap {
 function renderCdnUrl(template: string, data: { name: string; path: string; version: string }): string {
 	if (/^(?:https?:)?\/\//i.test(data.path) || /^(?:data|blob):/i.test(data.path)) return data.path;
 	if (!data.version && template.includes("{version}")) {
-		throw new Error(`[fast-vite:cdn-import] 无法确定 ${data.name} 的版本；请显式配置 version。`);
+		throw new Error(`[fast-vite:cdn-import] Unable to determine the version of ${data.name}. Configure version explicitly.`);
 	}
 	return template.replaceAll("{name}", data.name).replaceAll("{version}", data.version).replaceAll("{path}", data.path.replace(/^\//, ""));
 }
@@ -65,7 +65,7 @@ function renderCdnUrl(template: string, data: { name: string; path: string; vers
 function globalExpression(globalName: string): string {
 	const parts = globalName.split(".");
 	if (parts.some((part) => !isValidIdentifier(part))) {
-		throw new Error(`[fast-vite:cdn-import] 非法浏览器全局变量：${globalName}`);
+		throw new Error(`[fast-vite:cdn-import] Invalid browser global variable: ${globalName}`);
 	}
 	return parts.reduce((expression, part) => `${expression}[${JSON.stringify(part)}]`, "globalThis");
 }
@@ -142,7 +142,7 @@ function transformCdnImports(
 async function resolveCdnModules(root: string, options: CdnImportPluginOptions, env: ConfigEnv): Promise<ResolvedCdnModule[]> {
 	const urlTemplate = options.urlTemplate ?? cdnJsDelivrUrl;
 	const configured = (Array.isArray(options.modules) ? options.modules : [options.modules]) as readonly (CdnModule | CdnModuleResolver)[];
-	if (configured.length === 0) throw new Error("[fast-vite:cdn-import] modules 至少需要一个模块。");
+	if (configured.length === 0) throw new Error("[fast-vite:cdn-import] modules must contain at least one module.");
 	const context: CdnModuleResolverContext = { ...env, root, urlTemplate };
 	const resolved: ResolvedCdnModule[] = [];
 
@@ -172,10 +172,10 @@ async function resolveCdnModules(root: string, options: CdnImportPluginOptions, 
  */
 export function cdnImport(options: CdnImportPluginOptions): Plugin {
 	const configuredModules: unknown = options.modules;
-	if (configuredModules === undefined) throw new Error("[fast-vite:cdn-import] modules 至少需要一个模块。");
-	if (options.urlTemplate !== undefined && !options.urlTemplate.trim()) throw new Error("[fast-vite:cdn-import] urlTemplate 不能为空。");
+	if (configuredModules === undefined) throw new Error("[fast-vite:cdn-import] modules must contain at least one module.");
+	if (options.urlTemplate !== undefined && !options.urlTemplate.trim()) throw new Error("[fast-vite:cdn-import] urlTemplate must not be empty.");
 	if (options.crossorigin !== undefined && ![false, "anonymous", "use-credentials"].includes(options.crossorigin)) {
-		throw new Error("[fast-vite:cdn-import] crossorigin 只能是 false、anonymous 或 use-credentials。");
+		throw new Error("[fast-vite:cdn-import] crossorigin must be false, anonymous, or use-credentials.");
 	}
 	let config: ResolvedConfig;
 	let env: ConfigEnv;
@@ -282,7 +282,7 @@ function renderNamedExport(node: AstNode, expression: string, exportIndex: numbe
 
 function renderExportAll(node: AstNode, expression: string): string {
 	const exportedName = identifierName(node.exported);
-	if (!exportedName) throw new Error("[fast-vite:cdn-import] 无法将 export * 映射到全局变量；请改为显式命名导出。");
+	if (!exportedName) throw new Error("[fast-vite:cdn-import] Cannot map export * to a global variable. Use explicit named exports instead.");
 	return `const ${exportedName} = ${expression};\nexport { ${exportedName} };`;
 }
 
@@ -438,18 +438,20 @@ function toArray(value: string | readonly string[] | undefined): readonly string
 function validateModule(module: CdnModule): void {
 	const configuredModule: unknown = module;
 	if (typeof configuredModule !== "object" || configuredModule === null || Array.isArray(configuredModule)) {
-		throw new Error("[fast-vite:cdn-import] 模块配置必须是对象。");
+		throw new Error("[fast-vite:cdn-import] Module configuration must be an object.");
 	}
 	const moduleRecord = configuredModule as Record<string, unknown>;
-	if (typeof moduleRecord.name !== "string" || !moduleRecord.name.trim()) throw new Error("[fast-vite:cdn-import] 模块 name 不能为空。");
-	if (!module.global) throw new Error(`[fast-vite:cdn-import] ${module.name} 的 global 不能为空。`);
+	if (typeof moduleRecord.name !== "string" || !moduleRecord.name.trim()) throw new Error("[fast-vite:cdn-import] Module name must not be empty.");
+	if (!module.global) throw new Error(`[fast-vite:cdn-import] global must not be empty for ${module.name}.`);
 	if (toArray(module.js).length === 0 || toArray(module.js).some((file) => typeof file !== "string" || !file.trim())) {
-		throw new Error(`[fast-vite:cdn-import] ${module.name} 至少需要一个非空 JavaScript 文件。`);
+		throw new Error(`[fast-vite:cdn-import] ${module.name} requires at least one non-empty JavaScript file.`);
 	}
 	if (toArray(module.css).some((file) => typeof file !== "string" || !file.trim())) {
-		throw new Error(`[fast-vite:cdn-import] ${module.name} 的 CSS 文件不能为空。`);
+		throw new Error(`[fast-vite:cdn-import] CSS files must not be empty for ${module.name}.`);
 	}
-	if (module.aliases?.some((alias) => !alias.trim())) throw new Error(`[fast-vite:cdn-import] ${module.name} 的 aliases 不能包含空名称。`);
+	if (module.aliases?.some((alias) => !alias.trim())) {
+		throw new Error(`[fast-vite:cdn-import] aliases must not contain empty names for ${module.name}.`);
+	}
 	globalExpression(module.global);
 }
 
@@ -457,7 +459,7 @@ function createExternalMap(modules: readonly ResolvedCdnModule[]): Record<string
 	const result: Record<string, string> = Object.create(null) as Record<string, string>;
 	for (const module of modules) {
 		for (const name of [module.name, ...(module.aliases ?? [])]) {
-			if (Object.hasOwn(result, name)) throw new Error(`[fast-vite:cdn-import] 模块名或别名重复：${name}`);
+			if (Object.hasOwn(result, name)) throw new Error(`[fast-vite:cdn-import] Duplicate module name or alias: ${name}`);
 			result[name] = module.global;
 		}
 	}
