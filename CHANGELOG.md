@@ -4,6 +4,18 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and releases should follow [Semantic Versioning](https://semver.org/).
 
+## [2.0.17] - 2026-10-07
+
+### Changed
+
+- Use English for built-in errors and warning diagnostics, preserving plugin prefixes, configuration and path context, error types and failure conditions.
+- Preserve caller-provided validation messages and underlying errors without translation.
+- Normalize plugin option and context documentation.
+
+### Tests
+
+- Update diagnostic assertions and cover English environment validation messages and unchanged custom messages.
+
 ## [2.0.16] - 2026-09-22
 
 ### Fixed
@@ -160,6 +172,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Pack and publish commands use the root package manifest directly; no duplicated manifest or synchronization script is maintained.
 - CI validates Node.js 22.18/24.11, pnpm 11, Vite 8, and the final npm archive before release.
 
+[2.0.17]: https://gitee.com/FastDotnet/fast.vite.plugins/compare/v2.0.16...v2.0.17
 [2.0.16]: https://gitee.com/FastDotnet/fast.vite.plugins/compare/v2.0.15...v2.0.16
 [2.0.15]: https://gitee.com/FastDotnet/fast.vite.plugins/compare/v2.0.14...v2.0.15
 [2.0.14]: https://gitee.com/FastDotnet/fast.vite.plugins/compare/v2.0.13...v2.0.14
