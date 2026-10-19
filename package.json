@@ -10,7 +10,7 @@
 		"vite-plugin"
 	],
 	"license": "Apache-2.0",
-	"homepage": "http://fastdotnet.com",
+	"homepage": "https://fastdotnet.com",
 	"bugs": {
 		"url": "https://gitee.com/FastDotnet/fast.vite.plugins/issues"
 	},

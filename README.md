@@ -14,7 +14,7 @@
 
 Composable Vite plugins for code generation, build information, asset processing and deployment checks.
 
-**[Documentation](http://docs.fastdotnet.cn/en-US/frontend/vite-plugins/) · [Official website](http://fastdotnet.com)**
+**[Documentation](https://docs.fastdotnet.cn/en-US/frontend/vite-plugins/) · [Official website](https://fastdotnet.com)**
 
 ## Highlights
 
@@ -77,8 +77,8 @@ This emits precompressed files only. The server must still select them using `Ac
 
 ## Documentation
 
-- [Complete API reference](http://docs.fastdotnet.cn/en-US/frontend/vite-plugins/api/)
-- [Risk guide](http://docs.fastdotnet.cn/en-US/frontend/vite-plugins/risks)
+- [Complete API reference](https://docs.fastdotnet.cn/en-US/frontend/vite-plugins/api/)
+- [Risk guide](https://docs.fastdotnet.cn/en-US/frontend/vite-plugins/risks)
 - [Development, release, and deployment guide (Chinese)](./docs/DEVELOPMENT_RELEASE_DEPLOY.zh-CN.md)
 - [Contributing guide](./CONTRIBUTING.md)
 - [Changelog](./CHANGELOG.md)

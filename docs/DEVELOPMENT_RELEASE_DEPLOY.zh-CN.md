@@ -53,7 +53,7 @@ pnpm test
 pnpm check
 ```
 
-公共 API 变更必须同时更新：源码类型与 TSDoc、`README`、[api](http://docs.fastdotnet.cn/zh-CN/frontend/vite-plugins/api/)、测试和 `CHANGELOG.md`。仓库根目录就是公开 npm 包；运行 `pnpm build` 会在被 Git 忽略的 `dist/` 生成 ESM、类型声明和 sourcemap，不应手工修改这些构建产物。
+公共 API 变更必须同时更新：源码类型与 TSDoc、`README`、[api](https://docs.fastdotnet.cn/zh-CN/frontend/vite-plugins/api/)、测试和 `CHANGELOG.md`。仓库根目录就是公开 npm 包；运行 `pnpm build` 会在被 Git 忽略的 `dist/` 生成 ESM、类型声明和 sourcemap，不应手工修改这些构建产物。
 
 提交前确认：
 

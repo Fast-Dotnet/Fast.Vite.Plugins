@@ -14,7 +14,7 @@
 
 按需组合的 Vite 插件集合，覆盖代码生成、构建信息、资源处理与部署检查。
 
-**[使用文档](http://docs.fastdotnet.cn/zh-CN/frontend/vite-plugins/) · [官方网站](http://fastdotnet.com)**
+**[使用文档](https://docs.fastdotnet.cn/zh-CN/frontend/vite-plugins/) · [官方网站](https://fastdotnet.com)**
 
 ## 特性
 
@@ -76,8 +76,8 @@ export default defineConfig({
 
 ## 文档
 
-- [完整 API 参考](http://docs.fastdotnet.cn/zh-CN/frontend/vite-plugins/api/)
-- [风险指南](http://docs.fastdotnet.cn/zh-CN/frontend/vite-plugins/risks)
+- [完整 API 参考](https://docs.fastdotnet.cn/zh-CN/frontend/vite-plugins/api/)
+- [风险指南](https://docs.fastdotnet.cn/zh-CN/frontend/vite-plugins/risks)
 - [拉取、开发、发布与部署](./docs/DEVELOPMENT_RELEASE_DEPLOY.zh-CN.md)
 - [贡献指南](./CONTRIBUTING.md)
 - [工程质量审查](./docs/ENGINEERING_REVIEW.zh-CN.md)
